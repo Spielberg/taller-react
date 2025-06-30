@@ -12,6 +12,7 @@ import {
   CardContent,
   Paper,
   Chip,
+  CircularProgress,
 } from '@mui/material'
 import {
   WbSunny,
@@ -23,6 +24,7 @@ import {
   Water,
   LocationOn,
 } from '@mui/icons-material'
+import { useCities } from '../api/services/useCities'
 
 interface WeatherData {
   city: string
@@ -97,11 +99,16 @@ const weatherData: Record<string, WeatherData> = {
 function App() {
   const [selectedCity, setSelectedCity] = useState<string>('')
   const [weather, setWeather] = useState<WeatherData | null>(null)
+  const { data: cities, isLoading: isLoadingCities } = useCities(50);
 
   const handleCityChange = (event: SelectChangeEvent) => {
     const cityKey = event.target.value as string
     setSelectedCity(cityKey)
     setWeather(weatherData[cityKey])
+  }
+
+  if (isLoadingCities || !cities) {
+    return <CircularProgress />
   }
 
   return (
@@ -153,11 +160,11 @@ function App() {
               onChange={handleCityChange}
               sx={{ fontSize: '1.1rem' }}
             >
-              <MenuItem value="madrid">Madrid</MenuItem>
-              <MenuItem value="barcelona">Barcelona</MenuItem>
-              <MenuItem value="sevilla">Sevilla</MenuItem>
-              <MenuItem value="bilbao">Bilbao</MenuItem>
-              <MenuItem value="valencia">Valencia</MenuItem>
+              {cities.map((city) => (
+                <MenuItem key={city.Key} value={city.Key}>
+                  {city.LocalizedName}
+                </MenuItem>
+              ))}
             </Select>
           </FormControl>
         </Paper>
